@@ -209,9 +209,45 @@ def drawer_approximations(distribution: list,
             fontweight="normal",
             zorder=7
             )
-    
- 
 
+def drawer_deviations(distribution: list,
+                      spectral: np.array,
+                      *methods,
+                      colors=None,
+                      )-> None:
+
+    N = len(distribution)
+    if colors == None:
+        colors = ["C" + str(i+1) for i in range(N)]
+    
+    # Calculate the difference
+    devs = []
+    for i, curve in enumerate(distribution, start=1):
+        if i < len(distribution):
+            diff = np.absolute(distribution[i]-distribution[0])/distribution[0]
+            devs.append(diff)
+    
+    # Plot figures for variant approximations
+    fig, ax = plt.subplots(1, 1, figsize=(10, 7.5), dpi=200, facecolor="w")
+    for k, curve in enumerate(devs):
+        ax.plot(spectral, 
+                curve.squeeze(), 
+                lw=3, 
+                color=colors[k], 
+                zorder=len(distribution)-k)
+        
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlim(left=0.1, right=spectral[-1])
+    ax.set_ylim(bottom=10**-8, top=10**8)
+    ax.set_xticks(list(map(lambda n: 10**n, [ _ for _ in range(-1,2)])))
+    ax.set_xticklabels(list(map(lambda m: 10**m, [ _ for _ in range(-1,2)])),fontsize=12.8)
+    ax.set_yticks(list(map(lambda n: 10**n, [ _ for _ in range(-8,9,2)])))
+    ax.set_yticklabels(list(map(lambda n: f"10$^{n}$" if n>=0 else "10$^-$"+f"$^{abs(n)}$",
+                                          [ _ for _ in range(-8,9,2)])),fontsize=12.8)
+    ax.set_xlabel("Wavelength $\lambda$ ($\mu$m)", fontsize=13.8)
+    ax.set_ylabel("Relative deviations of B$_\lambda$(T)", fontsize=13.8)
+    ax.legend(labels = methods, loc="best", fontsize=15, handlelength=2.5)
 
 """
 
